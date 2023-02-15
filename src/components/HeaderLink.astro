@@ -1,16 +1,40 @@
 ---
-export interface Props extends astroHTML.JSX.AnchorHTMLAttributes {}
+export interface Props extends astroHTML.JSX.AnchorHTMLAttributes {
+  list?: Array<{
+    name: string,
+    link: string
+  }>
+}
 
-const { href, class: className, ...props } = Astro.props;
+const { href, class: className, list, ...props } = Astro.props;
 
 const { pathname } = Astro.url;
-const isActive = href === pathname || href === pathname.replace(/\/$/, '');
+
+const isActive = (link?: string) => {
+  const url = link || href
+  return url === pathname || url === pathname.replace(/\/$/, '') || (link && pathname.includes(link))
+};
 ---
 
-<a href={href} class:list={[className, { active: isActive }]} {...props}>
-	<slot />
-</a>
-<style>
+{
+  list && list.length
+    ? (
+        <div class:list={['menu_item', { focus: list.some(item => isActive(`${href}${item.link}`)) }]}>
+          <p><slot /></p>
+          <ul>{
+            list.map(item => (
+              <li>
+                <a href={`${href}${item.link}`} class:list={[className]} {...props}>{ item.name }</a>
+              </li>)
+            )
+          }</ul>
+        </div>
+      )
+    : (<a href={href} class:list={[className, { active: isActive() }, 'font-bold']} {...props}>
+        <slot />
+      </a>)
+}
+<style lang="less">
 	a {
 		display: inline-block;
 		text-decoration: none;
@@ -19,4 +43,38 @@ const isActive = href === pathname || href === pathname.replace(/\/$/, '');
 		font-weight: bolder;
 		text-decoration: underline;
 	}
+  .menu_item {
+    color: #3273dc;
+    margin-right: 10px;
+    position: relative;
+    &:hover {
+      > ul {
+        display: block
+      }
+    }
+    > p {
+      margin: 0;
+    }
+    &.focus > p {
+      font-weight: bolder;
+      text-decoration: underline;
+    }
+    ul {
+      position: absolute;
+      left: -10px;
+      background: #fff;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: none;
+      li {
+        padding: 4px 10px;
+        width: 100%;
+        box-sizing: border-box;
+        &:not(:last-child) {
+          border-bottom: 1px solid #d2d2d2;
+        }
+      }
+    }
+  }
 </style>

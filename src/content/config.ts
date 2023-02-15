@@ -1,6 +1,13 @@
+/*
+ * @Author: haifeng.lu haifeng.lu@ly.com
+ * @Date: 2023-02-08 06:08:12
+ * @LastEditors: haifeng.lu
+ * @LastEditTime: 2023-02-14 15:05:20
+ * @Description: 
+ */
 import { defineCollection, z } from 'astro:content';
 
-const blog = defineCollection({
+const conllectionGenerator = () => defineCollection({
 	// Type-check frontmatter using a schema
 	schema: z.object({
 		title: z.string(),
@@ -18,4 +25,4 @@ const blog = defineCollection({
 	}),
 });
 
-export const collections = { blog };
+export const collections = { jp: conllectionGenerator(), blog: conllectionGenerator() };
